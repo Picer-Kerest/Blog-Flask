@@ -45,16 +45,17 @@ def write_blog():
 def my_blogs():
     return render_template('my-blogs.html')
 
-
-@app.route('/edit-blog/', methods=['GET', 'POST'])
-def edit_blog():
-    return render_template('edit-blog.html')
-
+@app.route('/edit-blog/<int:blog_id>', methods=['GET', 'POST'])
+def edit_blog(blog_id):
+    return render_template('edit-blog.html', blog_id=blog_id)
 
 @app.route('/delete-blog/<int:blog_id>', methods=['POST'])
 def delete_blog(blog_id):
     return 'Success'
 
+@app.route('/logout/')
+def logout():
+    return render_template('logout.html')
 
 
 if __name__ == '__main__':
