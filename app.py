@@ -4,7 +4,7 @@ from flask_bootstrap import Bootstrap
 from flask_mysqldb import MySQL
 
 app = Flask(__name__)
-
+Bootstrap(app)
 
 db = yaml.load(open('db.yaml'))
 app.config['MYSQL_HOST'] = db['mysql_host']
@@ -18,12 +18,8 @@ def index():
     return render_template('index.html')
 
 @app.route('/about/')
-def index():
+def about():
     return render_template('about.html')
-
-@app.route('/')
-def index():
-    return render_template('index.html')
 
 @app.route('/blogs/<int:blog_id>')
 def blogs(blog_id):
