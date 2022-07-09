@@ -108,7 +108,16 @@ def write_blog():
 
 @app.route('/my-blogs/')
 def my_blogs():
-    return render_template('my-blogs.html')
+    author = session['first_name'] + ' ' + session['last_name']
+    cursor = mysql.connection.cursor()
+    result_value = cursor.execute('SELECT * FROM blog where author = %s', (author))
+    if result_value > 0:
+        myblogs = cursor.fetchall()
+        cursor.close()
+        return render_template('my-blogs.html', myblogs=myblogs)
+    else:
+        cursor.close()
+        return render_template('my-blogs.html', myblogs=None)
 
 @app.route('/edit-blog/<int:blog_id>', methods=['GET', 'POST'])
 def edit_blog(blog_id):
