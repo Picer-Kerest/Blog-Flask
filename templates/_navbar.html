@@ -15,16 +15,16 @@
         <a class="nav-link" href="/my-blogs">View my blogs</a>
       </li>
       {% endif %}
-
-      <li class="nav-item">
-        <a class="nav-link" href="/about">About</a>
-      </li>
     </ul>
 
     <ul class="navbar-nav ml-auto">
       {% if session.login %}
       <li class="nav-item">
-        <a class="nav-link" href="/login">Logout</a>
+        <a class="nav-link" href="#"><h5>Active User: {{ session['first_name'] }} {{ session['last_name'] }}</h5></a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" href="/logout">Logout</a>
       </li>
       {% else %}
       <li class="nav-item">

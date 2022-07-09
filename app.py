@@ -30,14 +30,10 @@ def index():
         cursor.close()
     return render_template('index.html', blogs=None)
 
-@app.route('/about/')
-def about():
-    return render_template('about.html')
-
 @app.route('/blogs/<int:blog_id>')
 def blogs(blog_id):
     cursor = mysql.connection.cursor()
-    result_value = cursor.execute('SELECT * FROM blog WHERE blog_id={}'.format(blog_id))
+    result_value = cursor.execute('SELECT * FROM blog WHERE blog_id={};'.format(blog_id))
     if result_value > 0:
         blog = cursor.fetchone()
         cursor.close()
@@ -110,7 +106,7 @@ def write_blog():
 def my_blogs():
     author = session['first_name'] + ' ' + session['last_name']
     cursor = mysql.connection.cursor()
-    result_value = cursor.execute('SELECT * FROM blog where author = %s', (author))
+    result_value = cursor.execute('SELECT * FROM blog where author = %s;', ([author]))
     if result_value > 0:
         myblogs = cursor.fetchall()
         cursor.close()
@@ -121,16 +117,40 @@ def my_blogs():
 
 @app.route('/edit-blog/<int:blog_id>', methods=['GET', 'POST'])
 def edit_blog(blog_id):
-    return render_template('edit-blog.html', blog_id=blog_id)
+    if request.method == 'POST':
+        cursor = mysql.connection.cursor()
+        title = request.form['title']
+        body = request.form['body']
+        cursor.execute('UPDATE blog SET title=%s, body = %s WHERE blog_id=%s;', (title, body, blog_id))
+        mysql.connection.commit()
+        cursor.close()
+        flash('Blog is updated successfully', 'success')
+        return redirect('/blogs/{}'.format(blog_id))
+    else:
+        cursor = mysql.connection.cursor()
+        result_value = cursor.execute('SELECT * FROM blog WHERE blog_id = {};'.format(blog_id))
+        if result_value > 0:
+            blog = cursor.fetchone()
+            blog_form = {}
+            blog_form['title'] = blog['title']
+            blog_form['body'] = blog['body']
+            return render_template('edit-blog.html', blog_form=blog_form)
+        cursor.close()
 
-@app.route('/delete-blog/<int:blog_id>', methods=['POST'])
+@app.route('/delete-blog/<int:blog_id>')
 def delete_blog(blog_id):
-    return 'Success'
+    cursor = mysql.connection.cursor()
+    cursor.execute('DELETE FROM blog WHERE blog_id={};'.format(blog_id))
+    mysql.connection.commit()
+    flash('Your blog has been deleted', 'success')
+    return redirect('/my-blogs')
 
-@app.route('/logout/')
+@app.route("/logout/")
 def logout():
-    return render_template('logout.html')
-
+    session.clear()
+    flash("You have been logged out!", "info")
+    return redirect("/")
 
 if __name__ == '__main__':
     app.run(debug=True)
+
