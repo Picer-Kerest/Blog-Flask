@@ -3,9 +3,11 @@ from flask import Flask, render_template, flash, session, request, redirect
 from flask_bootstrap import Bootstrap
 from flask_mysqldb import MySQL
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_ckeditor import CKEditor
 
 app = Flask(__name__)
 Bootstrap(app)
+CKEditor(app)
 
 db = yaml.load(open('db.yaml'))
 app.config['MYSQL_HOST'] = db['mysql_host']
@@ -34,7 +36,15 @@ def about():
 
 @app.route('/blogs/<int:blog_id>')
 def blogs(blog_id):
-    return render_template('blogs.html', blog_id=blog_id)
+    cursor = mysql.connection.cursor()
+    result_value = cursor.execute('SELECT * FROM blog WHERE blog_id={}'.format(blog_id))
+    if result_value > 0:
+        blog = cursor.fetchone()
+        cursor.close()
+        return render_template('blogs.html', blog=blog)
+    else:
+        cursor.close()
+        return 'Blog is not found.'
 
 @app.route('/register/', methods=['GET', 'POST'])
 def register():
